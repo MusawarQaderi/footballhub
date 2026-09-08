@@ -1,0 +1,293 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f7f7f7;
+    color: #222;
+}
+
+.dashboard {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Sidebar links */
+.sidebar {
+    width: 240px;
+    background-color: lightskyblue;
+    border-right: 1px solid #ddd;
+    padding: 30px 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar h1 {
+    margin-top: 0;
+    margin-bottom: 40px;
+    margin-left: 10px;
+    font-size: 24px;
+}
+
+.sidebar nav {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.sidebar a {
+    text-decoration: none;
+    color: black;
+    padding: 12px 10px;
+    border-radius: 5px;
+}
+
+.sidebar a:hover {
+    background-color: #eee;
+}
+
+.sidebar .active {
+    background-color: #eee;
+    font-weight: bold;
+}
+
+.logout {
+    margin-top: auto;
+}
+
+/* Hauptbereich */
+.content {
+    flex: 1;
+    padding: 40px;
+    max-width: 1400px;
+}
+
+.header {
+    margin-bottom: 30px;
+}
+
+.header h2 {
+    margin: 0;
+    margin-bottom: 8px;
+}
+
+.header p {
+    margin: 0;
+    color: gray;
+}
+
+/* Container Karten */
+.card {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 25px;
+    margin-bottom: 20px;
+}
+
+.card h3 {
+    margin-top: 0;
+}
+
+/* Spieler Profil */
+.player-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.player-info h3 {
+    margin-bottom: 5px;
+}
+
+.player-info p {
+    margin: 0;
+    color: gray;
+}
+
+.player-number {
+    font-size: 35px;
+    font-weight: bold;
+}
+
+/* Naechstes Spiel Box */
+.next-game {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+    font-size: 20px;
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+
+.vs {
+    font-size: 14px;
+    color: #777;
+}
+
+.section-title {
+    margin-top: 35px;
+}
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.stat-card {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.stat-card span {
+    color: #666;
+}
+
+.stat-card strong {
+    font-size: 28px;
+}
+
+.games {
+    display: flex;
+    flex-direction: column;
+}
+
+.game {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.game:last-child {
+    border-bottom: none;
+}
+
+.game small {
+    display: block;
+    margin-top: 5px;
+    color: #777;
+}
+
+/* Fussballfeld */
+.taktikfeld {
+    position: relative;
+    width: 100%;
+    max-width: 900px;
+    height: 600px;
+    margin: 30px auto;
+    background: green;
+    border: 4px solid white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0px 5px 20px rgba(0,0,0,0.2);
+}
+
+.mittellinie {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    height: 100%;
+    width: 2px;
+    background: white;
+}
+
+.mittelkreis {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 120px;
+    height: 120px;
+    transform: translate(-50%, -50%);
+    border: 2px solid white;
+    border-radius: 50%;
+}
+
+.strafraum-links {
+    position: absolute;
+    left: 0;
+    top: 180px;
+    width: 130px;
+    height: 240px;
+    border: 2px solid white;
+    border-left: none;
+}
+
+.strafraum-rechts {
+    position: absolute;
+    right: 0;
+    top: 180px;
+    width: 130px;
+    height: 240px;
+    border: 2px solid white;
+    border-right: none;
+}
+
+/* Spieler Kreise */
+.spieler {
+    position: absolute;
+    width: 65px;
+    height: 65px;
+    background: white;
+    color: black;
+    border-radius: 50%;
+    border: 3px solid blue;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 12px;
+    font-weight: bold;
+    transform: translate(-50%, -50%);
+    cursor: pointer;
+    user-select: none;
+}
+
+.spieler:active {
+    cursor: grabbing;
+}
+
+.position {
+    position: absolute;
+    top: 67px;
+    font-size: 10px;
+    color: white;
+    width: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.aufstellung-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.aufstellung-info select {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+.speichern-btn {
+    padding: 10px 18px;
+    background: blue;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.speichern-btn:hover {
+    background: darkblue;
+}
+
