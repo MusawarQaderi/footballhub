@@ -25,4 +25,4 @@ Die Datenbank wurde mit **MariaDB** umgesetzt und während der Entwicklung mit *
 Die Bereitstellung auf dem Server erfolgte per **FileZilla**.
 
 ## Hinweis
-Dieses Repository dokumentiert ein Ausbildungsprojekt. Es zeigt den Entwicklungsstand und die umgesetzten Konzepte, erhebt jedoch keinen Anspruch auf eine vollständig produktionsreife Anwendung.
+Dieses Repository dokumentiert ein Ausbildungsprojekt. Es zeigt den Entwicklungsstand und die umgesetzten Konzepte, erhebt jedoch keinen Anspruch auf eine vollständig produktionsreife Anwendung. Dies wäre bei der relativ kurzen Projektphase auch ein bisschen zu hoch gegriffen.
