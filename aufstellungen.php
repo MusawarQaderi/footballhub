@@ -6,33 +6,28 @@ if (!isset($_SESSION["id"])) {
 }
 include "db.php";
 
+// Welche Aufstellung (Formation) soll geladen werden?
+$formation_id = isset($_GET["aufstellung"]) ? (int)$_GET["aufstellung"] : 1;
 
-// Welche Aufstellung
-if (isset($_GET["aufstellung"])) {
-    $aufstellung_id = (int) $_GET["aufstellung"];
-} else {
-    $aufstellung_id = 1;
-}
+// Aufstellung aus der Datenbank holen (Sicher mit Prepared Statement)
+$sql = "SELECT 
+            lineup.formation_id, 
+            lineup.spieler_id, 
+            spieler.vorname, 
+            spieler.nachname, 
+            spieler.trikotnummer, 
+            lineup.position_x, 
+            lineup.position_y, 
+            lineup.position_rolle 
+        FROM lineup 
+        JOIN spieler ON lineup.spieler_id = spieler.id 
+        WHERE lineup.formation_id = ? 
+        ORDER BY lineup.id";
 
-
-// Aufstellung aus der Datenbank holen
-$sql = "
-    SELECT
-        lineup.aufstellung_id,
-        lineup.spieler_id,
-        spieler.vorname,
-        spieler.nachname,
-        spieler.trikotnummer,
-        lineup.position_x,
-        lineup.position_y,
-        lineup.position_rolle
-    FROM lineup 
-    JOIN spieler 
-        ON lineup.spieler_id = spieler.id
-    WHERE lineup.aufstellung_id = $aufstellung_id
-    ORDER BY lineup.id
-";
-$result = mysqli_query($con, $sql);
+$stmt = mysqli_prepare($con, $sql);
+mysqli_stmt_bind_param($stmt, "i", $formation_id);
+mysqli_stmt_execute($stmt);
+$result = mysqli_stmt_get_result($stmt);
 ?>
 
 <!DOCTYPE html>
@@ -51,6 +46,8 @@ $result = mysqli_query($con, $sql);
             background: #218c45;
             border: 3px solid white;
             box-sizing: border-box;
+            overflow: hidden;
+            border-radius: 5px;
         }
         .mittellinie {
             position: absolute;
@@ -80,81 +77,73 @@ $result = mysqli_query($con, $sql);
             background: white;
             border-radius: 50%;
         }
-        .strafraum-oben {
+        .strafraum-oben, .strafraum-unten {
             position: absolute;
-            top: 0;
             left: 25%;
             width: 50%;
             height: 120px;
             border: 2px solid white;
-            border-top: none;
             box-sizing: border-box;
         }
-        .torraum-oben {
+        .strafraum-oben { top: 0; border-top: none; }
+        .strafraum-unten { bottom: 0; border-bottom: none; }
+        
+        .torraum-oben, .torraum-unten {
             position: absolute;
-            top: 0;
             left: 38%;
             width: 24%;
             height: 50px;
             border: 2px solid white;
-            border-top: none;
             box-sizing: border-box;
         }
-        .strafraum-unten {
+        .torraum-oben { top: 0; border-top: none; }
+        .torraum-unten { bottom: 0; border-bottom: none; }
+
+        /* Verbessertes Spieler-Pin Design */
+        .spieler-pin {
             position: absolute;
-            bottom: 0;
-            left: 25%;
-            width: 50%;
-            height: 120px;
-            border: 2px solid white;
-            border-bottom: none;
-            box-sizing: border-box;
-        }
-        .torraum-unten {
-            position: absolute;
-            bottom: 0;
-            left: 38%;
-            width: 24%;
-            height: 50px;
-            border: 2px solid white;
-            border-bottom: none;
-            box-sizing: border-box;
-        }
-        .spieler {
-            position: absolute;
-            width: 60px;
-            height: 60px;
             transform: translate(-50%, -50%);
-            background: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 10;
+        }
+        .spieler-kreis {
+            width: 40px;
+            height: 40px;
+            background: #fff;
             border: 3px solid #0b5ed7;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            text-align: center;
-            color: #222;
-            font-size: 11px;
+            color: #0b5ed7;
+            font-size: 16px;
             font-weight: bold;
-            box-shadow: 0 3px 8px rgba(0,0,0,0.35);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.5);
+        }
+        .spieler-info {
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 3px 6px;
+            border-radius: 4px;
+            text-align: center;
+            margin-top: 5px;
+            min-width: 60px;
         }
         .spieler-name {
-            max-width: 55px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .spieler-position {
-            position: absolute;
-            top: 63px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: white;
             font-size: 11px;
             font-weight: bold;
+            display: block;
             white-space: nowrap;
         }
-        .formationen {
-            margin-bottom: 20px;
+        .spieler-position {
+            font-size: 9px;
+            color: #ccc;
+            display: block;
         }
+
+        .formationen { margin-bottom: 20px; }
         .formationen a {
             display: inline-block;
             padding: 10px 18px;
@@ -163,18 +152,23 @@ $result = mysqli_query($con, $sql);
             color: #222;
             text-decoration: none;
             border-radius: 6px;
+            font-weight: bold;
         }
-        .formationen a:hover {
-            background: #dddddd;
-        }
-        .formationen a.aktiv {
-            background: #0b5ed7;
+        .formationen a:hover { background: #dddddd; }
+        .formationen a.aktiv { background: #0b5ed7; color: white; }
+        
+        .empty-state {
+            text-align: center;
             color: white;
+            position: absolute;
+            top: 40%;
+            width: 100%;
+            font-size: 1.2em;
+            background: rgba(0,0,0,0.5);
+            padding: 10px 0;
         }
     </style>
 </head>
-
-
 
 <body>
 <div class="dashboard">
@@ -183,13 +177,9 @@ $result = mysqli_query($con, $sql);
         <br>
         <nav>
             <?php if ($_SESSION["rolle"] == "Spieler") { ?>
-                <a href="spieler_dashboard.php">
-                    Dashboard
-                </a>
+                <a href="spieler_dashboard.php">Dashboard</a>
             <?php } else { ?>
-                <a href="trainer_dashboard.php">
-                    Dashboard
-                </a>
+                <a href="trainer_dashboard.php">Dashboard</a>
             <?php } ?>
 
             <a href="profil.php">Mein Profil</a>
@@ -197,28 +187,22 @@ $result = mysqli_query($con, $sql);
             <a href="stats.php">Statistik</a>
             <a href="spiele.php">Spiele</a>
             <a href="aufstellungen.php" class="active">Aufstellungen</a>
-            <?php if ($_SESSION["rolle"] == "Trainer") { ?><a href="training.php">Training</a><?php } ?>
+            <?php if ($_SESSION["rolle"] == "Trainer") { ?>
+                <a href="training.php">Training</a>
+            <?php } ?>
         </nav>
         <a href="logout.php" class="logout">Abmelden</a>
     </aside>
-
-
 
     <main class="content">
         <h2>Aufstellungen</h2>
         <div class="card">
             <h3>Aufstellung auswählen</h3>
             <div class="formationen">
-                <a href="aufstellungen.php?aufstellung=1"
-                   class="<?php if ($aufstellung_id == 1) {
-                       echo 'aktiv';
-                        } ?>">3-2-3-2</a>
-
-                <a href="aufstellungen.php?aufstellung=2"
-                   class="<?php if ($aufstellung_id == 2) {
-                       echo 'aktiv';
-                        } ?>">4-2-3-1</a>
+                <a href="aufstellungen.php?aufstellung=1" class="<?php echo ($formation_id == 1) ? 'aktiv' : ''; ?>">3-2-3-2</a>
+                <a href="aufstellungen.php?aufstellung=2" class="<?php echo ($formation_id == 2) ? 'aktiv' : ''; ?>">4-2-3-1</a>
             </div>
+            
             <div class="taktikfeld">
                 <div class="mittellinie"></div>
                 <div class="mittelkreis"></div>
@@ -228,39 +212,26 @@ $result = mysqli_query($con, $sql);
                 <div class="strafraum-unten"></div>
                 <div class="torraum-unten"></div>
 
-
-
-<!--<!--                --><?php
-////                while ($spieler = mysqli_fetch_assoc($result)) {
-////                    ?>
-<!--<!--                    <div-->
-<!--<!--                            class="spieler"-->
-<!--<!--                            style="left: --><?php ////= htmlspecialchars($spieler["position_y"]) ?><!--/*%;*/-->
-<!--/*                                    top: */--><?php ////= htmlspecialchars($spieler["position_x"]) ?><!--/*%;">*/-->
-<!--/*                        <span class="spieler-name">*/-->
-<!--/*                            */--><?php ////= htmlspecialchars($spieler["nachname"]) ?>
-<!--<!--                        </span>-->
-<!--<!--                        <span class="spieler-position">-->
-<!--<!--                            --><?php ////= htmlspecialchars(
-////                                    $spieler["position_rolle"]
-////                            ) ?>
-<!--<!--                        </span>-->
-<!--<!--                    </div>-->
-<!--<!--                    --><?php
-////                }
-                ///
-                ///
-                ///
-////                ?>
-                    <?php
-                    while ($spieler = mysqli_fetch_assoc($result)) {
-                        echo '<div class="spieler" style="left: ' . $spieler["position_y"] . '%; top: ' . $spieler["position_x"] . '%;">';
-                        echo '<span class="spieler-name">' . $spieler["nachname"] . '</span>';
-                        echo '<span class="spieler-position">' . $spieler["position_rolle"] . '</span>';
-                        echo '</div>';
-                    }
-                    ?>
-
+                <?php 
+                if (mysqli_num_rows($result) > 0) {
+                    while ($spieler = mysqli_fetch_assoc($result)) { 
+                        // Die X/Y Werte werden als Prozent genutzt, um sie flexibel auf dem Feld zu platzieren
+                ?>
+                    <div class="spieler-pin" style="left: <?php echo htmlspecialchars($spieler["position_y"]); ?>%; top: <?php echo htmlspecialchars($spieler["position_x"]); ?>%;">
+                        <div class="spieler-kreis">
+                            <?php echo !empty($spieler["trikotnummer"]) ? htmlspecialchars($spieler["trikotnummer"]) : "-"; ?>
+                        </div>
+                        <div class="spieler-info">
+                            <span class="spieler-name"><?php echo htmlspecialchars($spieler["nachname"]); ?></span>
+                            <span class="spieler-position"><?php echo htmlspecialchars($spieler["position_rolle"]); ?></span>
+                        </div>
+                    </div>
+                <?php 
+                    } 
+                } else {
+                    echo '<div class="empty-state">Noch keine Spieler für diese Formation aufgestellt.</div>';
+                }
+                ?>
             </div>
         </div>
     </main>
