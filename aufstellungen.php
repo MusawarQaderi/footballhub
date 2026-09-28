@@ -37,12 +37,12 @@ $result = mysqli_stmt_get_result($stmt);
     <title>FootballHub - Aufstellungen</title>
     <link rel="stylesheet" href="dashboard.css">
     <style>
-        /* Spielfeld (Querformat / TV-Ansicht) */
+        /* Taktikfeld im HOCHFORMAT (Torwart unten, Angriff oben) */
         .taktikfeld {
             position: relative;
             width: 100%;
-            max-width: 900px;
-            height: 600px;
+            max-width: 600px; /* Schmaler als vorher, für echtes Hochformat */
+            height: 800px;    /* Viel höher als vorher */
             margin: 30px auto;
             background: #218c45;
             border: 3px solid white;
@@ -54,12 +54,12 @@ $result = mysqli_stmt_get_result($stmt);
         /* Linien auf dem Feld */
         .mittellinie {
             position: absolute;
-            top: 0;
-            left: 50%;
-            width: 2px;
-            height: 100%;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 2px;
             background: white;
-            transform: translateX(-50%);
+            transform: translateY(-50%);
         }
         .mittelkreis {
             position: absolute;
@@ -82,47 +82,47 @@ $result = mysqli_stmt_get_result($stmt);
             border-radius: 50%;
         }
         
-        /* Straf- und Torraum Links */
-        .strafraum-links {
+        /* Straf- und Torraum Oben (Gegner) */
+        .strafraum-oben {
             position: absolute;
-            top: 20%;
-            left: 0;
-            width: 150px;
-            height: 60%;
+            top: 0;
+            left: 20%;
+            width: 60%;
+            height: 120px;
             border: 2px solid white;
-            border-left: none;
+            border-top: none;
             box-sizing: border-box;
         }
-        .torraum-links {
+        .torraum-oben {
             position: absolute;
-            top: 35%;
-            left: 0;
-            width: 50px;
-            height: 30%;
+            top: 0;
+            left: 35%;
+            width: 30%;
+            height: 50px;
             border: 2px solid white;
-            border-left: none;
+            border-top: none;
             box-sizing: border-box;
         }
 
-        /* Straf- und Torraum Rechts */
-        .strafraum-rechts {
+        /* Straf- und Torraum Unten (Eigenes Team) */
+        .strafraum-unten {
             position: absolute;
-            top: 20%;
-            right: 0;
-            width: 150px;
-            height: 60%;
+            bottom: 0;
+            left: 20%;
+            width: 60%;
+            height: 120px;
             border: 2px solid white;
-            border-right: none;
+            border-bottom: none;
             box-sizing: border-box;
         }
-        .torraum-rechts {
+        .torraum-unten {
             position: absolute;
-            top: 35%;
-            right: 0;
-            width: 50px;
-            height: 30%;
+            bottom: 0;
+            left: 35%;
+            width: 30%;
+            height: 50px;
             border: 2px solid white;
-            border-right: none;
+            border-bottom: none;
             box-sizing: border-box;
         }
 
@@ -236,18 +236,18 @@ $result = mysqli_stmt_get_result($stmt);
                 <div class="mittellinie"></div>
                 <div class="mittelkreis"></div>
                 <div class="mittelpunkt"></div>
-                <div class="strafraum-links"></div>
-                <div class="torraum-links"></div>
-                <div class="strafraum-rechts"></div>
-                <div class="torraum-rechts"></div>
+                <div class="strafraum-oben"></div>
+                <div class="torraum-oben"></div>
+                <div class="strafraum-unten"></div>
+                <div class="torraum-unten"></div>
 
                 <!-- Spieler laden -->
                 <?php 
                 if (mysqli_num_rows($result) > 0) {
                     while ($spieler = mysqli_fetch_assoc($result)) { 
-                        // position_x = left (horizontale Achse), position_y = top (vertikale Achse)
+                        // WICHTIG: position_y ist nun left (horizontale Achse), position_x ist top (vertikale Achse)
                 ?>
-                    <div class="spieler-pin" style="left: <?php echo htmlspecialchars($spieler["position_x"]); ?>%; top: <?php echo htmlspecialchars($spieler["position_y"]); ?>%;">
+                    <div class="spieler-pin" style="left: <?php echo htmlspecialchars($spieler["position_y"]); ?>%; top: <?php echo htmlspecialchars($spieler["position_x"]); ?>%;">
                         <div class="spieler-kreis">
                             <?php echo !empty($spieler["trikotnummer"]) ? htmlspecialchars($spieler["trikotnummer"]) : "-"; ?>
                         </div>
