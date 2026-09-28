@@ -196,7 +196,7 @@ $result = mysqli_stmt_get_result($stmt);
                         // position_x = left (horizontale Position von rechts nach links)
                         // position_y = top (vertikale Position von oben nach unten)
                 ?>
-                    <div class="spieler-pin" style="left: <?php echo htmlspecialchars($spieler["position_x"]); ?>%; top: <?php echo htmlspecialchars($spieler["position_y"]); ?>%;">
+                    <div class="spieler-pin" style="left: <?php echo htmlspecialchars($spieler["position_y"]); ?>%; top: <?php echo htmlspecialchars($spieler["position_x"]); ?>%;">
                         <div class="spieler-kreis">
                             <?php echo !empty($spieler["trikotnummer"]) ? htmlspecialchars($spieler["trikotnummer"]) : "-"; ?>
                         </div>
