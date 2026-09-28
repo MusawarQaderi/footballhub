@@ -6,10 +6,8 @@ if (!isset($_SESSION["id"])) {
 }
 include "db.php";
 
-// Welche Aufstellung (Formation) soll geladen werden?
 $formation_id = isset($_GET["aufstellung"]) ? (int)$_GET["aufstellung"] : 1;
 
-// Aufstellung aus der Datenbank holen (Sicher mit Prepared Statement)
 $sql = "SELECT 
             lineup.formation_id, 
             lineup.spieler_id, 
@@ -37,12 +35,12 @@ $result = mysqli_stmt_get_result($stmt);
     <title>FootballHub - Aufstellungen</title>
     <link rel="stylesheet" href="dashboard.css">
     <style>
-        /* Taktikfeld im HOCHFORMAT (Torwart unten, Angriff oben) */
+        /* Taktikfeld im Querformat (TV-Ansicht) */
         .taktikfeld {
             position: relative;
             width: 100%;
-            max-width: 600px; /* Schmaler als vorher, für echtes Hochformat */
-            height: 800px;    /* Viel höher als vorher */
+            max-width: 900px;
+            height: 600px;
             margin: 30px auto;
             background: #218c45;
             border: 3px solid white;
@@ -51,15 +49,14 @@ $result = mysqli_stmt_get_result($stmt);
             border-radius: 5px;
         }
         
-        /* Linien auf dem Feld */
         .mittellinie {
             position: absolute;
-            top: 50%;
-            left: 0;
-            width: 100%;
-            height: 2px;
+            top: 0;
+            left: 50%;
+            width: 2px;
+            height: 100%;
             background: white;
-            transform: translateY(-50%);
+            transform: translateX(-50%);
         }
         .mittelkreis {
             position: absolute;
@@ -82,51 +79,25 @@ $result = mysqli_stmt_get_result($stmt);
             border-radius: 50%;
         }
         
-        /* Straf- und Torraum Oben (Gegner) */
-        .strafraum-oben {
-            position: absolute;
-            top: 0;
-            left: 20%;
-            width: 60%;
-            height: 120px;
-            border: 2px solid white;
-            border-top: none;
-            box-sizing: border-box;
+        /* Straf- und Torraum Links & Rechts */
+        .strafraum-links {
+            position: absolute; top: 20%; left: 0; width: 150px; height: 60%;
+            border: 2px solid white; border-left: none; box-sizing: border-box;
         }
-        .torraum-oben {
-            position: absolute;
-            top: 0;
-            left: 35%;
-            width: 30%;
-            height: 50px;
-            border: 2px solid white;
-            border-top: none;
-            box-sizing: border-box;
+        .torraum-links {
+            position: absolute; top: 35%; left: 0; width: 50px; height: 30%;
+            border: 2px solid white; border-left: none; box-sizing: border-box;
+        }
+        .strafraum-rechts {
+            position: absolute; top: 20%; right: 0; width: 150px; height: 60%;
+            border: 2px solid white; border-right: none; box-sizing: border-box;
+        }
+        .torraum-rechts {
+            position: absolute; top: 35%; right: 0; width: 50px; height: 30%;
+            border: 2px solid white; border-right: none; box-sizing: border-box;
         }
 
-        /* Straf- und Torraum Unten (Eigenes Team) */
-        .strafraum-unten {
-            position: absolute;
-            bottom: 0;
-            left: 20%;
-            width: 60%;
-            height: 120px;
-            border: 2px solid white;
-            border-bottom: none;
-            box-sizing: border-box;
-        }
-        .torraum-unten {
-            position: absolute;
-            bottom: 0;
-            left: 35%;
-            width: 30%;
-            height: 50px;
-            border: 2px solid white;
-            border-bottom: none;
-            box-sizing: border-box;
-        }
-
-        /* Design der Spieler */
+        /* Design der Spieler-Pins */
         .spieler-pin {
             position: absolute;
             transform: translate(-50%, -50%);
@@ -158,42 +129,20 @@ $result = mysqli_stmt_get_result($stmt);
             margin-top: 5px;
             min-width: 60px;
         }
-        .spieler-name {
-            font-size: 11px;
-            font-weight: bold;
-            display: block;
-            white-space: nowrap;
-        }
-        .spieler-position {
-            font-size: 9px;
-            color: #ccc;
-            display: block;
-        }
+        .spieler-name { font-size: 11px; font-weight: bold; display: block; white-space: nowrap; }
+        .spieler-position { font-size: 9px; color: #ccc; display: block; }
 
-        /* Navigation für die Formationen */
         .formationen { margin-bottom: 20px; }
         .formationen a {
-            display: inline-block;
-            padding: 10px 18px;
-            margin-right: 8px;
-            background: #eeeeee;
-            color: #222;
-            text-decoration: none;
-            border-radius: 6px;
-            font-weight: bold;
+            display: inline-block; padding: 10px 18px; margin-right: 8px;
+            background: #eeeeee; color: #222; text-decoration: none; border-radius: 6px; font-weight: bold;
         }
         .formationen a:hover { background: #dddddd; }
         .formationen a.aktiv { background: #0b5ed7; color: white; }
         
         .empty-state {
-            text-align: center;
-            color: white;
-            position: absolute;
-            top: 40%;
-            width: 100%;
-            font-size: 1.2em;
-            background: rgba(0,0,0,0.5);
-            padding: 10px 0;
+            text-align: center; color: white; position: absolute; top: 40%; width: 100%;
+            font-size: 1.2em; background: rgba(0,0,0,0.5); padding: 10px 0;
         }
     </style>
 </head>
@@ -232,19 +181,20 @@ $result = mysqli_stmt_get_result($stmt);
             </div>
             
             <div class="taktikfeld">
-                <!-- Linien -->
                 <div class="mittellinie"></div>
                 <div class="mittelkreis"></div>
                 <div class="mittelpunkt"></div>
-                <div class="strafraum-oben"></div>
-                <div class="torraum-oben"></div>
-                <div class="strafraum-unten"></div>
-                <div class="torraum-unten"></div>
+                <div class="strafraum-links"></div>
+                <div class="torraum-links"></div>
+                <div class="strafraum-rechts"></div>
+                <div class="torraum-rechts"></div>
 
-                <!-- Spieler laden -->
                 <?php 
                 if (mysqli_num_rows($result) > 0) {
                     while ($spieler = mysqli_fetch_assoc($result)) { 
+                        // Hier greifen deine Datenbank-Werte wieder perfekt:
+                        // position_x = left (horizontale Position von rechts nach links)
+                        // position_y = top (vertikale Position von oben nach unten)
                 ?>
                     <div class="spieler-pin" style="left: <?php echo htmlspecialchars($spieler["position_x"]); ?>%; top: <?php echo htmlspecialchars($spieler["position_y"]); ?>%;">
                         <div class="spieler-kreis">
