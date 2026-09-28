@@ -245,9 +245,8 @@ $result = mysqli_stmt_get_result($stmt);
                 <?php 
                 if (mysqli_num_rows($result) > 0) {
                     while ($spieler = mysqli_fetch_assoc($result)) { 
-                        // WICHTIG: position_y ist nun left (horizontale Achse), position_x ist top (vertikale Achse)
                 ?>
-                    <div class="spieler-pin" style="left: <?php echo htmlspecialchars($spieler["position_y"]); ?>%; top: <?php echo htmlspecialchars($spieler["position_x"]); ?>%;">
+                    <div class="spieler-pin" style="left: <?php echo htmlspecialchars($spieler["position_x"]); ?>%; top: <?php echo htmlspecialchars($spieler["position_y"]); ?>%;">
                         <div class="spieler-kreis">
                             <?php echo !empty($spieler["trikotnummer"]) ? htmlspecialchars($spieler["trikotnummer"]) : "-"; ?>
                         </div>
